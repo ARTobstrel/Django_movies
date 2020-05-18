@@ -38,7 +38,7 @@ Thumbs.db
 
 
 .idea/
-#venv/
+venv/
 #media/
 /*/__pycache__/
 __pycache__/
