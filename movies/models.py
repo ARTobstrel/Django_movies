@@ -30,6 +30,9 @@ class Actor(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('actor_detail', kwargs={"slug": self.name})
+
     class Meta:
         verbose_name = "Актеры и режиссеры"
         verbose_name_plural = "Актеры и режиссеры"
@@ -72,7 +75,7 @@ class Movie(models.Model):
     )
     category = models.ForeignKey(Category, verbose_name="Категория", on_delete=models.SET_NULL, null=True)
     url = models.SlugField(max_length=160, unique=True)
-    draft = models.BooleanField("Chernovik", default=False)
+    draft = models.BooleanField("Черновик", default=False)
 
     def __str__(self):
         return self.title
@@ -84,49 +87,53 @@ class Movie(models.Model):
         return self.reviews_set.filter(parent__isnull=True)
 
     class Meta:
-        verbose_name = "Film"
-        verbose_name_plural = "Filmy"
+        verbose_name = "Фильм"
+        verbose_name_plural = "Фильмы"
 
 
 class MovieShots(models.Model):
     """Shots from film"""
-    title = models.CharField('Zagolovok', max_length=100)
+    title = models.CharField('Заголовок', max_length=100)
     description = models.TextField("Описание")
-    image = models.ImageField('Izobrajenie', upload_to='movie_shots/')
-    movie = models.ForeignKey(Movie, verbose_name='Film', on_delete=models.CASCADE)
+    image = models.ImageField('Изображение', upload_to='movie_shots/')
+    movie = models.ForeignKey(Movie, verbose_name='Фильм', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title
 
     class Meta:
-        verbose_name = 'Shot from film'
-        verbose_name_plural = 'Shots from film'
+        verbose_name = 'Кадр'
+        verbose_name_plural = 'Кадры'
 
 
 class RatingStar(models.Model):
     """Zvezda raytinga"""
-    value = models.PositiveSmallIntegerField('Znachenie', default=0)
+    value = models.PositiveSmallIntegerField('Значение', default=0)
 
     def __str__(self):
-        return self.value
+        return f'{self.value}'
 
     class Meta:
-        verbose_name = "Zvezda raytinga"
-        verbose_name_plural = "Zvezdi raytinga"
+        verbose_name = "Звезда рейтинга"
+        verbose_name_plural = "Звезды рейтинга"
+        ordering = ['-value']
 
 
 class Rating(models.Model):
     """Rating"""
     ip = models.CharField('IP adress', max_length=15)
-    star = models.ForeignKey(RatingStar, on_delete=models.CASCADE, verbose_name='zvezda')
-    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, verbose_name='film')
+    star = models.ForeignKey(RatingStar, on_delete=models.CASCADE, verbose_name='Звезда')
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, verbose_name='Фильм')
 
     def __str__(self):
         return f'{self.star} - {self.movie}'
 
+    def get_star(self):
+        return f'{self.star}'
+
     class Meta:
-        verbose_name = 'Rayting'
-        verbose_name_plural = 'Raytingi'
+        verbose_name = 'Рейтинг'
+        verbose_name_plural = 'Рейтинги'
 
 
 class Reviews(models.Model):
@@ -134,12 +141,12 @@ class Reviews(models.Model):
     email = models.EmailField()
     name = models.CharField('Название', max_length=100)
     text = models.TextField('Текст', max_length=5000)
-    parent = models.ForeignKey('self', verbose_name='Roditel', on_delete=models.SET_NULL, blank=True, null=True)
-    movie = models.ForeignKey(Movie, verbose_name='Film', on_delete=models.CASCADE)
+    parent = models.ForeignKey('self', verbose_name='Родитель', on_delete=models.SET_NULL, blank=True, null=True)
+    movie = models.ForeignKey(Movie, verbose_name='Фильм', on_delete=models.CASCADE)
 
     def __str__(self):
         return f'{self.name} - {self.movie}'
 
     class Meta:
-        verbose_name = 'Otziv'
-        verbose_name_plural = 'Otzivi'
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
